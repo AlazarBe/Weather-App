@@ -1,0 +1,48 @@
+const apikey = "6f4bfa470ef824cb6899cf550585c3b8";
+const weatherDataEl = document.getElementById("weather-data");
+const cityInputEl = document.getElementById("city-input");
+
+const formEl = document.querySelector("form");
+
+formEl.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const cityValue = cityInputEl.value;
+  getWeatherData(cityValue);
+});
+async function getWeatherData(cityValue) {
+  try {
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${cityValue}&appid=${apikey}&units=metric`,
+    );
+    if (!response.ok) {
+      throw new Error("Network response is not ok");
+    }
+    const data = await response.json();
+    console.log(data);
+    const temprature = Math.round(data.main.temp);
+    const description = data.weather[0].description;
+    const icon = data.weather[0].icon;
+    const details = [
+      `Feels like : ${Math.round(data.main.feels_like)}&#176;C`,
+      `Humidity : ${Math.round(data.main.humidity)}%`,
+      `Wind Speed : ${Math.round(data.wind.speed)}m/s`,
+    ];
+    weatherDataEl.querySelector(".icon").innerHTML = `<img
+            src="http://openweathermap.org/img/wn/${icon}.png"
+            alt="weather icon"
+          />`;
+    weatherDataEl.querySelector(".temprature").innerHTML =
+      `${temprature} &#176;C`;
+    weatherDataEl.querySelector(".description").innerHTML = description;
+    weatherDataEl.querySelector(".details").innerHTML = details
+      .map((deatail) => `<div>${deatail}</div>`)
+      .join("");
+  } catch (error) {
+    weatherDataEl.querySelector(".icon").innerHTML = "";
+    weatherDataEl.querySelector(".temprature").innerHTML = "";
+    weatherDataEl.querySelector(".description").style.color = "red";
+    weatherDataEl.querySelector(".description").innerHTML =
+      " Error happened, please try again later";
+    weatherDataEl.querySelector(".details").innerHTML = "";
+  }
+}
